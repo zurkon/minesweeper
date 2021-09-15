@@ -14,4 +14,8 @@ export const FaceContainer = styled.div`
   &:hover {
     cursor: pointer;
   }
+
+  &:active {
+    ${border('#999', '#fff')};
+  }
 `;
