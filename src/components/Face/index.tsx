@@ -1,9 +1,16 @@
+import { FC } from "react";
+import { FaceState } from "../../types";
 import { FaceContainer } from "./style";
 
-const Face = () => {
+interface FaceProps {
+  face: FaceState,
+  handleFaceClick: () => void
+}
+
+const Face: FC<FaceProps> = ({ face, handleFaceClick }) => {
   return (
-    <FaceContainer>
-      😃
+    <FaceContainer onClick={handleFaceClick}>
+      {face}
     </FaceContainer>
   );
 }

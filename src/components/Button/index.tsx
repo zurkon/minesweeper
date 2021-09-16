@@ -7,9 +7,28 @@ interface ButtonProps {
   col: number;
   state: CellState;
   value: CellValue;
+  onClick(
+    rowParam: number,
+    colParam: number
+  ): (e: React.MouseEvent) => void;
+  onContext(
+    rowParam: number,
+    colParam: number
+  ): (e: React.MouseEvent) => void;
+  onMouseDown: () => void;
+  onMouseUp: () => void;
 }
 
-const Button: FC<ButtonProps> = ({ row, col, state, value }) => {
+const Button: FC<ButtonProps> = ({
+  row,
+  col,
+  onClick,
+  onContext,
+  state,
+  value,
+  onMouseDown,
+  onMouseUp
+}) => {
   const renderContent = (): React.ReactNode => {
     if (state === CellState.visible) {
       if (value === CellValue.bomb) {
@@ -29,7 +48,14 @@ const Button: FC<ButtonProps> = ({ row, col, state, value }) => {
   }
 
   return (
-    <ButtonContainer state={state} value={value}>
+    <ButtonContainer
+      state={state}
+      value={value}
+      onClick={onClick(row, col)}
+      onContextMenu={onContext(row, col)}
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}
+    >
       {renderContent()}
     </ButtonContainer>
   );
