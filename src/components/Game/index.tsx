@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { MAX_COLUMNS, MAX_ROWS } from '../../constants';
 import { Cell, CellState, CellValue, FaceState } from '../../types';
-import { generateCells, openMultipleCells } from '../../utils/cells';
+import { generateCells, openMultipleCells, showAllBombs } from '../../utils/cells';
 import Board from '../Board';
 import Header from '../Header';
 import { GameContainer } from './style';
@@ -44,14 +45,49 @@ const Game = () => {
     }
 
     if (currentCell.value === CellValue.bomb) {
-      // TODO: take care of bomb click
+      setFace(FaceState.lost);
+      setLive(false);
+      newCells = showAllBombs(newCells);
+      setCells(newCells);
+      return;
+
     } else if (currentCell.value === CellValue.none) {
       newCells = openMultipleCells(newCells, rowParam, colParam);
-      setCells(newCells);
     } else {
       newCells[rowParam][colParam].state = CellState.visible;
-      setCells(newCells);
     }
+
+    // Check to see if you have won
+    let safeOpenCellsExists = false;
+    for (let row = 0; row < MAX_ROWS; row++) {
+      for (let col = 0; col < MAX_COLUMNS; col++) {
+        const currentCell = newCells[row][col];
+
+        if (
+          currentCell.value !== CellValue.bomb &&
+          currentCell.state === CellState.open
+        ) {
+          safeOpenCellsExists = true;
+          break;
+        }
+      }
+    } // For
+
+    if (!safeOpenCellsExists) {
+      newCells = newCells.map(row => row.map(cell => {
+        if (cell.value === CellValue.bomb) {
+          return {
+            ...cell,
+            state: CellState.flagged
+          }
+        }
+        return cell;
+      }));
+      setLive(false);
+      setFace(FaceState.won);
+    }
+
+    setCells(newCells);
   }
 
   const handleCellRightClick = (
@@ -82,12 +118,11 @@ const Game = () => {
   }
 
   const handleFaceClick = (): void => {
-    if (live) {
-      setLive(false);
-      setTime(0);
-      setCells(generateCells());
-      setBombCounter(10);
-    }
+    setLive(false);
+    setTime(0);
+    setCells(generateCells());
+    setBombCounter(10);
+    setFace(FaceState.smile);
   }
 
   return (

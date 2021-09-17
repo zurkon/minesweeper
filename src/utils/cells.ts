@@ -137,7 +137,7 @@ export const generateCells = (): Cell[][] => {
   }
 
   return cells;
-};
+}
 
 export const openMultipleCells = (
   cells: Cell[][],
@@ -249,4 +249,22 @@ export const openMultipleCells = (
   }
 
   return newCells;
+}
+
+export const showAllBombs = (cells: Cell[][]): Cell[][] => {
+  const currentCells = cells.slice();
+  return currentCells.map(row => {
+    return row.map(cell => {
+
+      if (cell.value === CellValue.bomb) {
+        return {
+          ...cell,
+          state: CellState.visible
+        };
+      }
+
+      return cell;
+
+    });
+  });
 }
