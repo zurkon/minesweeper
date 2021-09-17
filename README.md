@@ -1,3 +1,21 @@
+<h1 align="center">Minesweeper</h1> 
+
+<div align="center">
+
+  <img src="https://raw.githubusercontent.com/Zurkon/RepoAssets/main/minesweeper/banner.png" />
+
+A Minesweeper Game built with [`React`](https://facebook.github.io/react/), [`styled-components`](https://github.com/styled-components/styled-components) and [`Typescript`](https://www.typescriptlang.org/).
+
+</div>
+
+## Libraries
+
+This project was made using:
+
+- [`React`](https://facebook.github.io/react/) - Library for building user interfaces.
+- [`styled-components`](https://github.com/styled-components/styled-components) - Styling components with CSS in JS.
+- [`Typescript`](https://www.typescriptlang.org/) - JavaScript with syntax for types.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
