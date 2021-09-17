@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { MAX_COLUMNS, MAX_ROWS } from '../../constants';
 import { Cell, CellState, CellValue, FaceState } from '../../types';
 import { generateCells, openMultipleCells, showAllBombs } from '../../utils/cells';
 import Board from '../Board';
 import Header from '../Header';
+import { safeOpenCellExists, setCellFlagged } from './functions';
 import { GameContainer } from './style';
 
 const Game = () => {
   const [cells, setCells] = useState<Cell[][]>(generateCells());
   const [face, setFace] = useState<FaceState>(FaceState.smile);
   const [time, setTime] = useState<number>(0);
-  const [live, setLive] = useState<boolean>(false);
+  const [playing, setPlaying] = useState<boolean>(false);
   const [bombCounter, setBombCounter] = useState<number>(10);
 
+  // Time Counter loop
   useEffect(() => {
-    if (live && time < 999) {
+    if (playing && time < 999) {
       const timer = setInterval(() => {
         setTime(time + 1);
       }, 1000);
@@ -23,30 +24,27 @@ const Game = () => {
         clearInterval(timer);
       }
     }
-  }, [live, time]);
+  }, [playing, time]);
 
   const handleCellClick = (
     rowParam: number,
     colParam: number
   ) => (): void => {
     // start the game
-    if (!live) {
-      setLive(true);
+    if (!playing) {
+      setPlaying(true);
     }
 
     const currentCell = cells[rowParam][colParam];
     let newCells = cells.slice();
 
-    if (
-      currentCell.state === CellState.flagged ||
-      currentCell.state === CellState.visible
-    ) {
+    if (currentCell.state === CellState.flagged || currentCell.state === CellState.visible) {
       return;
     }
 
     if (currentCell.value === CellValue.bomb) {
       setFace(FaceState.lost);
-      setLive(false);
+      setPlaying(false);
       newCells = showAllBombs(newCells);
       setCells(newCells);
       return;
@@ -57,23 +55,7 @@ const Game = () => {
       newCells[rowParam][colParam].state = CellState.visible;
     }
 
-    // Check to see if you have won
-    let safeOpenCellsExists = false;
-    for (let row = 0; row < MAX_ROWS; row++) {
-      for (let col = 0; col < MAX_COLUMNS; col++) {
-        const currentCell = newCells[row][col];
-
-        if (
-          currentCell.value !== CellValue.bomb &&
-          currentCell.state === CellState.open
-        ) {
-          safeOpenCellsExists = true;
-          break;
-        }
-      }
-    } // For
-
-    if (!safeOpenCellsExists) {
+    if (!safeOpenCellExists(newCells)) {
       newCells = newCells.map(row => row.map(cell => {
         if (cell.value === CellValue.bomb) {
           return {
@@ -83,7 +65,8 @@ const Game = () => {
         }
         return cell;
       }));
-      setLive(false);
+      setBombCounter(0);
+      setPlaying(false);
       setFace(FaceState.won);
     }
 
@@ -96,29 +79,19 @@ const Game = () => {
   ) => (e: React.MouseEvent): void => {
     e.preventDefault();
 
-    if (!live) {
+    if (!playing) {
       return;
     }
 
-    const currentBoard = cells.slice();
-    const currentCell = cells[rowParam][colParam];
+    const [newCells, newBombCounter] = setCellFlagged(cells, rowParam, colParam, bombCounter);
 
-    if (currentCell.state === CellState.visible) {
-      return;
-    } else if (currentCell.state === CellState.open && bombCounter > 0) {
-      currentBoard[rowParam][colParam].state = CellState.flagged;
-      setCells(currentBoard);
-      setBombCounter(bombCounter - 1);
-
-    } else if (currentCell.state === CellState.flagged && bombCounter < 10) {
-      currentBoard[rowParam][colParam].state = CellState.open;
-      setCells(currentBoard);
-      setBombCounter(bombCounter + 1);
-    }
+    setCells(newCells);
+    setBombCounter(newBombCounter);
   }
 
+  // Reset Button
   const handleFaceClick = (): void => {
-    setLive(false);
+    setPlaying(false);
     setTime(0);
     setCells(generateCells());
     setBombCounter(10);
